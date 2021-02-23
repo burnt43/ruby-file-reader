@@ -35,6 +35,12 @@ module RubyFileReader
         reader = RubyFileReader::Reader.new(pathname)
         reader.read_new_data(&block)
       end
+
+      def clear_meta_info_dir!
+        meta_info_dir_pathname.each_child do |child|
+          FileUtils.rm_f(child)
+        end
+      end
     end
 
     def initialize(pathname)

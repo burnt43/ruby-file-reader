@@ -36,10 +36,8 @@ module RubyFileReader
 
     class Test < Minitest::Test
       def teardown
-        # Remove all the files in the tmpfile directory.
-        RubyFileReader::Testing.tmpfile_dir_pathname.each_child do |child|
-          FileUtils.rm_f(child)
-        end
+        # Remove all files in meta info directory.
+        RubyFileReader::Reader.clear_meta_info_dir!
       end
 
       private
