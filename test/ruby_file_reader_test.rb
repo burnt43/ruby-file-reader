@@ -15,6 +15,18 @@ module RubyFileReader
         RubyFileReader::Reader.read_new_data(RubyFileReader::Testing.tmpfile_pathname('file0001.txt')) do |data|
           assert_equal("LINE_0002\n", data)
         end
+
+        write_to_tmpfile('file0001.txt', "LINE_0003a")
+
+        RubyFileReader::Reader.read_new_data(RubyFileReader::Testing.tmpfile_pathname('file0001.txt')) do |data|
+          assert_equal("LINE_0003a", data)
+        end
+
+        write_to_tmpfile('file0001.txt', "LINE_0003b")
+
+        RubyFileReader::Reader.read_new_data(RubyFileReader::Testing.tmpfile_pathname('file0001.txt')) do |data|
+          assert_equal("LINE_0003b", data)
+        end
       end
     end
   end

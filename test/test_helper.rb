@@ -1,3 +1,9 @@
+module Warning
+  def warn(msg)
+    # NoOp
+  end
+end
+
 require 'minitest/pride'
 require 'minitest/autorun'
 
@@ -38,5 +44,6 @@ module RubyFileReader
   end
 end
 
+RubyFileReader::Reader.debug = false
 RubyFileReader::Reader.meta_info_dir_pathname = Pathname.new('./test/assets/tmp')
 RubyFileReader::Testing.ensure_tmpfile_dir_exists!

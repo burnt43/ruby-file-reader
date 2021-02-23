@@ -4,6 +4,14 @@ require 'fileutils'
 module RubyFileReader
   class Reader
     class << self
+      def debug=(value)
+        @debug = value
+      end
+
+      def debug?
+        @debug
+      end
+
       def meta_info_dir_pathname=(value)
         @meta_info_dir_pathname =
           if value.is_a?(Pathname)
@@ -40,11 +48,19 @@ module RubyFileReader
       update_meta_info!
     end
 
+    def to_s
+      @pathname.to_s
+    end
+
     private
 
     def read
+      if RubyFileReader::Reader.debug?
+        puts "[DEBUG] - #{self}##{__method__}----------------------------------------"
+      end
+
       # Determine the inode number of the file we want to read.
-      @inode = `ls -i #{@pathname.to_s}`.split[0]
+      @inode = `ls -i #{@pathname.to_s}`.split[0].to_i
 
       # Read the meta info file for the file we want to read.
       meta_info = read_meta_info
@@ -52,22 +68,53 @@ module RubyFileReader
       if meta_info[:inode] != @inode
         # The inode has changed for this file since we last read it, so
         # we need to read it from the beginning.
-        @read_string = IO.read(@pathname, nil, 0, mode: 'r')
+
+        offset = 0
+
+        if RubyFileReader::Reader.debug?
+          puts "[DEBUG] - #{self}##{__method__}: inode has changed!"
+          puts "[DEBUG] - #{self}##{__method__}: offset: #{offset}"
+        end
+
+        @read_string = IO.read(@pathname, nil, offset, mode: 'r')
         @read_bytes = @read_string.bytesize
       elsif @pathname.size < meta_info[:bytes_read]
         # The inode has not changed, but the file size is smaller, which means
         # the file may have been truncated at some point, so we will read the
         # while file.
+
+        offset = 0
+
+        if RubyFileReader::Reader.debug?
+          puts "[DEBUG] - #{self}##{__method__}: inode match. possible truncated file."
+          puts "[DEBUG] - #{self}##{__method__}: offset: #{offset}"
+        end
+
         @read_string = IO.read(@pathname, nil, 0, mode: 'r')
         @read_bytes = @read_string.bytesize
       else
         # The inode is the same as the last time we read it and the file size
         # is >= than last time, so we can read from where we left off.
-        @read_string = IO.read(@pathname, nil, meta_info[:bytes_read], mode: 'r')
+
+        offset = meta_info[:bytes_read]
+
+        if RubyFileReader::Reader.debug?
+          puts "[DEBUG] - #{self}##{__method__}: inode match"
+          puts "[DEBUG] - #{self}##{__method__}: offset: #{offset}"
+        end
+
+        @read_string = IO.read(@pathname, nil, offset, mode: 'r')
         @read_bytes = meta_info[:bytes_read] + @read_string.bytesize
       end
 
       @data_read = true
+
+      if RubyFileReader::Reader.debug?
+        puts "[DEBUG] - #{self}##{__method__}: inode: #{@inode}"
+        puts "[DEBUG] - #{self}##{__method__}: read_string: #{@read_string}"
+        puts "[DEBUG] - #{self}##{__method__}: read_bytes #{@read_bytes}"
+        puts "[DEBUG] - #{self}##{__method__}: data_read: #{@data_read}"
+      end
     end
 
     def has_been_read?
