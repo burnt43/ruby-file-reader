@@ -55,9 +55,12 @@ module RubyFileReader
     end
 
     def read_new_data(&block)
+      return unless block
+
       read
-      block.call(@read_string)
-      update_meta_info!
+      block.call(@read_string).tap do
+        update_meta_info!
+      end
     end
 
     def to_s

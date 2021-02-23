@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name        = 'ruby-file-reader'
-  s.version     = '1.0.1'
+  s.version     = '1.0.2'
   s.summary     = 'speed up reading of ever growing logfiles by remembering where you left off when you last read.'
   s.description = 'speed up reading of ever growing logfiles by remembering where you left off when you last read.'
   s.authors     = ['James Carson']
