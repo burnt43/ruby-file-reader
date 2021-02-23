@@ -4,6 +4,8 @@ require 'fileutils'
 module RubyFileReader
   class Reader
     class << self
+      # Set debug option. This will output some information that is helpful
+      # in trying to find issues.
       def debug=(value)
         @debug = value
       end
@@ -12,6 +14,8 @@ module RubyFileReader
         @debug
       end
 
+      # Set the directory where the metafiles will be written. This will
+      # default to $HOME/.ruby-file-reader.
       def meta_info_dir_pathname=(value)
         @meta_info_dir_pathname =
           if value.is_a?(Pathname)
@@ -25,6 +29,8 @@ module RubyFileReader
         @meta_info_dir_pathname ||= Pathname.new("/home/#{`whoami`.strip}/.ruby-file-reader")
       end
 
+      # Read the new data in the file that was added since the last time
+      # we read the file.
       def read_new_data(pathname, &block)
         reader = RubyFileReader::Reader.new(pathname)
         reader.read_new_data(&block)
@@ -54,6 +60,8 @@ module RubyFileReader
 
     private
 
+    # Read the file with offset if we have already read that part of the file
+    # before.
     def read
       if RubyFileReader::Reader.debug?
         puts "[DEBUG] - #{self}##{__method__}----------------------------------------"
@@ -117,10 +125,13 @@ module RubyFileReader
       end
     end
 
+    # Has the read method been called?
     def has_been_read?
       @data_read
     end
 
+    # Parse the information from the meta file to let use know where we left
+    # off when we last read and the inode so we know if the inode changed.
     def read_meta_info
       if meta_info_file_pathname.exist?
         inode, bytes_read = meta_info_file_pathname.read.strip.split(':').map(&:to_i)
@@ -136,13 +147,16 @@ module RubyFileReader
       end
     end
 
+    # Write the meta info we obtained by reading the file to the meta info
+    # file.
     def update_meta_info!
       return unless has_been_read?
 
       ensure_meta_info_dir_exists!
       meta_info_file_pathname.write("#{@inode}:#{@read_bytes}")
     end
-
+    
+    # Return the Pathname for the meta info file.
     def meta_info_file_pathname
       return @meta_info_file_pathname if @meta_info_file_pathname
 
@@ -152,6 +166,8 @@ module RubyFileReader
       @meta_info_file_pathname = pathname_non_hidden.parent.join(".#{pathname_non_hidden.basename.to_s}")
     end
 
+    # Create the directory for the meta info files if it doesn't already
+    # exist.
     def ensure_meta_info_dir_exists!
       FileUtils.mkdir_p(RubyFileReader::Reader.meta_info_dir_pathname)
     end
