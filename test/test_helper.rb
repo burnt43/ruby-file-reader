@@ -2,6 +2,7 @@ require 'minitest/pride'
 require 'minitest/autorun'
 
 require 'pathname'
+require 'fileutils'
 
 require './lib/ruby-file-reader'
 
@@ -14,6 +15,10 @@ module RubyFileReader
 
       def tmpfile_pathname(name)
         tmpfile_dir_pathname.join(name)
+      end
+
+      def ensure_tmpfile_dir_exists!
+        FileUtils.mkdir_p(tmpfile_dir_pathname)
       end
     end
 
@@ -32,3 +37,6 @@ module RubyFileReader
     end
   end
 end
+
+RubyFileReader::Reader.meta_info_dir_pathname = Pathname.new('./test/assets/tmp')
+RubyFileReader::Testing.ensure_tmpfile_dir_exists!
