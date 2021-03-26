@@ -45,10 +45,12 @@ module RubyFileReader
         end
       end
 
-      def meta_info_file_pathname_for(actual_file_pathname)
-        pathname_non_hidden = RubyFileReader::Reader.meta_info_dir_pathname.join(
-          actual_file_pathname.to_s.gsub('/', '_____')
-        )
+      def meta_info_file_pathname_for(actual_file_pathname, override_username: nil)
+        pathname_non_hidden =
+          RubyFileReader::Reader
+          .meta_info_dir_pathname(override_username: override_username)
+          .join(actual_file_pathname.to_s.gsub('/', '_____'))
+
         pathname_non_hidden.parent.join(".#{pathname_non_hidden.basename.to_s}")
       end
     end # class << self
