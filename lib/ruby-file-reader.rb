@@ -41,7 +41,14 @@ module RubyFileReader
           FileUtils.rm_f(child)
         end
       end
-    end
+
+      def meta_info_file_pathname_for(actual_file_pathname)
+        pathname_non_hidden = RubyFileReader::Reader.meta_info_dir_pathname.join(
+          actual_file_pathname.to_s.gsub('/', '_____')
+        )
+        pathname_non_hidden.parent.join(".#{pathname_non_hidden.basename.to_s}")
+      end
+    end # class << self
 
     def initialize(pathname)
       @pathname =
@@ -169,10 +176,7 @@ module RubyFileReader
     def meta_info_file_pathname
       return @meta_info_file_pathname if @meta_info_file_pathname
 
-      pathname_non_hidden = RubyFileReader::Reader.meta_info_dir_pathname.join(
-        @pathname.to_s.gsub('/', '_____')
-      )
-      @meta_info_file_pathname = pathname_non_hidden.parent.join(".#{pathname_non_hidden.basename.to_s}")
+      @meta_info_file_pathname = RubyFileReader::Reader.meta_info_file_pathname_for(@pathname)
     end
 
     # Create the directory for the meta info files if it doesn't already
