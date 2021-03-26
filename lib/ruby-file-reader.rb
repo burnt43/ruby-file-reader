@@ -25,8 +25,11 @@ module RubyFileReader
           end
       end
 
-      def meta_info_dir_pathname
-        @meta_info_dir_pathname ||= Pathname.new("/home/#{`whoami`.strip}/.ruby-file-reader")
+      def meta_info_dir_pathname(override_username: nil)
+        return @meta_info_dir_pathname if @meta_info_dir_pathname
+
+        user = override_username || `whoami`.strip
+        Pathname.new("/home/#{user}/.ruby-file-reader")
       end
 
       # Read the new data in the file that was added since the last time
